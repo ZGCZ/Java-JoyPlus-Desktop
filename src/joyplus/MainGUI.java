@@ -23,7 +23,7 @@ public class MainGUI extends JFrame {
         panel.setLayout(null);
 
         JButton quitButton = new JButton("Quit");
-        quitButton.setBounds(50, 60, 80, 30);
+        quitButton.setBounds(50, 60, 80, 30); // x, y, w, h
         
         quitButton.addActionListener(new ActionListener() {
             @Override

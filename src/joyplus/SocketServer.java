@@ -1,13 +1,20 @@
 package joyplus;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 public class SocketServer extends WebSocketServer {
+    Map<WebSocket, Integer> sockets = new HashMap<WebSocket, Integer>();
+    // Value type 0 for stimilate, 1 for game, 2 for device.
+    Collection<Game> games = new ArrayList<Game>();
+    
     private SocketServer(InetSocketAddress address) {
         super(address);
 		System.out.println("Start server on " + address.getHostString() + " port " + address.getPort());
@@ -35,9 +42,33 @@ public class SocketServer extends WebSocketServer {
     }
 
     @Override
-    public void onMessage(WebSocket conn, String message) {
+    public synchronized void onMessage(WebSocket conn, String message) {
         System.out.println("received message from " + conn.getRemoteSocketAddress() + ": " + message);
-        this.sendToAll(message);
+        // this.sendToAll(message);
+        if (!sockets.containsKey(conn)) {
+            if (message.equals("\"GAMEINIT\"")) {
+                sockets.put(conn, 1);
+                games.add(new Game(conn));
+                conn.send("READY");
+                System.out.println("Create new game.");
+            } else {
+                System.err.println("ERROR: unknown connection");
+            }
+            return;
+        }
+        switch (sockets.get(conn)) {
+        case 1:
+            findGame(conn).process(message);
+        }
+    }
+    
+    private Game findGame(WebSocket ws) {
+        for (Game game : games) {
+            if (game.ws.equals(ws)) {
+                return game;
+            }
+        }
+        return null;
     }
 
     @Override

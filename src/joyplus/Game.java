@@ -1,5 +1,7 @@
 package joyplus;
 
+import javax.swing.SwingUtilities;
+
 import org.java_websocket.WebSocket;
 
 import com.google.gson.Gson;
@@ -16,7 +18,14 @@ public class Game {
         String action = jsonObject.get("action").getAsString();
         System.out.println(action);
         if (action.equals("connect")) {
-            System.out.println("Trying to connect");
+            // System.out.println("Trying to connect");
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    ConnectGUI connectGUI = new ConnectGUI();
+                    connectGUI.setVisible(true);
+                }
+            });
         }
     }
 }

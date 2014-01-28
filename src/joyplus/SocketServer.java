@@ -49,7 +49,6 @@ public class SocketServer extends WebSocketServer {
             if (message.equals("\"GAMEINIT\"")) {
                 sockets.put(conn, 1);
                 games.add(new Game(conn));
-                conn.send("READY");
                 System.out.println("Create new game.");
             } else {
                 System.err.println("ERROR: unknown connection");

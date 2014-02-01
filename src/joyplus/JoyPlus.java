@@ -29,7 +29,13 @@ public class JoyPlus {
         });
     }
     
-    public static String getLocalNetworkIP() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostAddress();
+    public static String getLocalNetworkIP() {
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        }
     }
 }

@@ -10,6 +10,9 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 public class SocketServer extends WebSocketServer {
     Map<WebSocket, Integer> sockets = new HashMap<WebSocket, Integer>();
     // Value type 0 for stimilate, 1 for game, 2 for device.
@@ -39,25 +42,40 @@ public class SocketServer extends WebSocketServer {
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         System.out.println("closed " + conn.getRemoteSocketAddress() + " with exit code " + code + " additional info: " + reason);
+        games.remove(findGame(conn));
+        sockets.remove(conn);
     }
 
     @Override
     public synchronized void onMessage(WebSocket conn, String message) {
         System.out.println("received message from " + conn.getRemoteSocketAddress() + ": " + message);
-        // this.sendToAll(message);
-        if (!sockets.containsKey(conn)) {
-            if (message.equals("\"GAMEINIT\"")) {
-                sockets.put(conn, 1);
-                games.add(new Game(conn));
-                System.out.println("Create new game.");
-            } else {
-                System.err.println("ERROR: unknown connection");
-            }
+        
+        if (message.equals("GAMEINIT")) {
+            games.add(new Game(conn));
+            sockets.put(conn, 0);
+            System.out.println("Create new game.");
             return;
         }
-        switch (sockets.get(conn)) {
-        case 1:
-            findGame(conn).process(message);
+        
+        if (sockets.containsKey(conn)) {
+            if (sockets.get(conn) == 0) {
+                Game game = findGame(conn);
+                game.fromGame(message);
+            } else {
+                Game game = findGame(sockets.get(conn));
+                game.fromDevice(message);
+            }
+        } else {
+            // new device
+            System.out.println("new device");
+            Gson gson = new Gson();
+            JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
+            int gameId = jsonObject.get("gameId").getAsInt();
+            sockets.put(conn, gameId);
+            Game game = findGame(gameId);
+            game.devices.add(conn);
+            game.connectGUI.close();
+            System.out.println("new device added");
         }
     }
     
@@ -69,18 +87,19 @@ public class SocketServer extends WebSocketServer {
         }
         return null;
     }
+    
+    private Game findGame(int gameId) {
+        for (Game game : games) {
+            if (game.id == gameId) {
+                return game;
+            }
+        }
+        return null;
+    }
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
     	System.err.println(ex.toString());
     }
     
-    public void sendToAll( String text ) {
-        Collection<WebSocket> con = connections();
-        synchronized ( con ) {
-            for( WebSocket c : con ) {
-                c.send( text );
-            }
-        }
-    }
 }

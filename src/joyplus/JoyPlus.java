@@ -9,8 +9,6 @@ public class JoyPlus {
     public static SocketServer ss;
     public static MainGUI mainGUI;
     public static void main(String[] args) {
-        
-        
         startGUI();
         
         System.out.println("Joy Plus starts.");

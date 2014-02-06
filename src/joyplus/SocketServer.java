@@ -75,6 +75,9 @@ public class SocketServer extends WebSocketServer {
             Game game = findGame(gameId);
             game.devices.add(conn);
             game.connectGUI.close();
+            // sned layout to device
+            String layout = "{\"event\":\"layout\",\"layout\":"+game.layout+"}";
+            conn.send(layout);
             System.out.println("new device added");
         }
     }

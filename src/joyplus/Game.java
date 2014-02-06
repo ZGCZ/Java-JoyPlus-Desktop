@@ -14,6 +14,7 @@ public class Game {
     public int id;
     public WebSocket ws;
     ConnectGUI connectGUI;
+    public String layout = "";
     public List<WebSocket> devices = new ArrayList<WebSocket>();
     public Game(WebSocket ws) {
         id = ws.getRemoteSocketAddress().getPort();
@@ -26,6 +27,7 @@ public class Game {
         
         String event = jsonObject.get("event").getAsString();
         if (event.equals("connect")) {
+            layout = jsonObject.get("layout").getAsString();
             // System.out.println("Trying to connect");
             SwingUtilities.invokeLater(new Runnable() {
                 @Override

@@ -38,10 +38,11 @@ public class Game {
             });
         }
     }
-    public void fromDevice(String message) {
+    public void fromDevice(String message, int device) {
         Gson gson = new Gson();
         JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
+        jsonObject.add("device", gson.toJsonTree(device));
         System.out.println("Game " + id + " process: " + jsonObject.toString());
-        ws.send(message);
+        ws.send(jsonObject.toString());
     }
 }

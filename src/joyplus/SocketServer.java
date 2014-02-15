@@ -63,7 +63,7 @@ public class SocketServer extends WebSocketServer {
                 game.fromGame(message);
             } else {
                 Game game = findGame(sockets.get(conn));
-                game.fromDevice(message);
+                game.fromDevice(message, conn.getRemoteSocketAddress().getPort());
             }
         } else {
             // new device
@@ -76,8 +76,9 @@ public class SocketServer extends WebSocketServer {
             game.devices.add(conn);
             game.connectGUI.close();
             // sned layout to device
-            String layout = "{\"event\":\"layout\",\"layout\":"+game.layout+"}";
+            String layout = "{\"event\":\"layout\",\"layout\":\""+game.layout+"\"}";
             conn.send(layout);
+            game.fromDevice("{\"event\":\"connect\"}", conn.getRemoteSocketAddress().getPort());
             System.out.println("new device added");
         }
     }

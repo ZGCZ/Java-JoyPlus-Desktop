@@ -31,7 +31,20 @@ public class MainGUI extends JFrame {
                 System.exit(0);
            }
         });
-
         panel.add(quitButton);
+        
+
+        JButton keyboardButton = new JButton("Test");
+        keyboardButton.setBounds(50, 160, 80, 30); // x, y, w, h
+        
+        keyboardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                VirtualKeyboard vk = VirtualKeyboard.getInstance();
+                vk.test();
+           }
+        });
+
+        panel.add(keyboardButton);
     }
 }
